@@ -111,3 +111,6 @@ EXAMPLE:        round 1             round 2             round 3          ETC...
 tyler123 -> gfHGt$252%*#^sdg -> HoKI*v2&7237sF@^$# -> Sd32#6^@FjO03$ -> 
 
 - This makes it near impossible users will ever have the same PW/hashed PW
+
+# SERVER STUFF
+1. When you start the server and go to the localhost page, it's constantly listening to requests from clients
