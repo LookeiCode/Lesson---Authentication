@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import axios from 'axios'
+
 import './App.css'
 
 import { Route, Routes, useLocation } from 'react-router-dom'
@@ -16,7 +18,7 @@ import { Route, Routes, useLocation } from 'react-router-dom'
 // We put it inside a <form> because we want to end up submitting this form and sending a request to our backend
 
 // So we have two fields (inputs) inside a form, and when you click the submit button, the "onSubmit" will be called
-// We put a "event.preventDefault();" in the onSubmit because the default behavior for form submissions is refreshing (for some dumb reason) and this method prevents the default behavior hence "preventDefault" lol
+// We put a "event.preventDefault();" in the onSubmit because the default behavior for form submissions is refreshing (for some dumb reason) and this method prevents the default behavior; hence "preventDefault" lol
 
 const AuthForm = ({ onAuthSubmit }) => {
 
@@ -56,17 +58,45 @@ const AuthForm = ({ onAuthSubmit }) => {
 // Inside the element we have the "Login" component
 // So the "/login" page will display/return whatever is being returned from the Login component
 
+
+
+// AXIOS EXPLAINED
+// 1. The reason we use post (axios.post) is because we want to take in the username and password as the body! ( you know, like req.body)
+// 2. We then pass the username and password in as the second argument (for axios) and also as an object
+// 3. The object is known as the body basically
+
+
 function App() {
 
-const login = (username, password) => {
-  console.log('Login button clicked');
-  console.log(`Username: ${username}`)
-  console.log(`Password: ${password}`)
+const login = async (username, password) => {
+  try {
+    await axios.post('http://localhost:8080/auth/login', 
+    {
+      username,
+      password
+    });
+  } catch (e) {
+    console.log('There was an error logging in');
+  };
+
+  // console.log('Login button clicked');
+  // console.log(`Username: ${username}`)
+  // console.log(`Password: ${password}`)
 };
-const register = (username, password) => {
-  console.log('Register button clicked');
-  console.log(`Username: ${username}`)
-  console.log(`Password: ${password}`)
+const register = async (username, password) => {
+  try {
+    await axios.post('http://localhost:8080/auth/register', 
+    {
+      username,
+      password
+    });
+  } catch (e) {
+    console.log('There was an error registering');
+  };
+
+  // console.log('Register button clicked');
+  // console.log(`Username: ${username}`)
+  // console.log(`Password: ${password}`)
 };
 
   return (
@@ -81,7 +111,7 @@ const register = (username, password) => {
 
 // EXPLAINING "onAuthSubmit"
 // 1. We put it inside the "AuthForm" component as a prop
-// 2. Hence the name, we put it inside the "onSubmit" function -> when the button is clicked the function is fired which also triggers "onAuthSubmit"
+// 2. Hence the name, we put it inside the "onSubmit" function -> when the button is clicked the onSubmit function is fired which also triggers "onAuthSubmit"
 // 3. We also pass it into our App component routes to their respective routes
 // 4. We assign a function to them called "login" for the login route, and "register" for the register route - onAuthSubmit IS both "login" and "register"
 // 5. We then make the functions in the app component, which simply just console log a message when the button is clicked.
