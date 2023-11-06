@@ -75,4 +75,12 @@ const register = () => {
   );
 }
 
+// EXPLAINING "onAuthSubmit"
+// 1. We put it inside the "AuthForm" component as a prop
+// 2. Hence the name, we put it inside the "onSubmit" function -> when the button is clicked the function is fired which also triggers "onAuthSubmit"
+// 3. We also pass it into our App component routes to their respective routes
+// 4. We assign a function to them called "login" for the login route, and "register" for the register route
+// 5. We then make the functions in the app component, which simply just console log a message when the button is clicked.
+// 6. So whenever the button is clicked it triggers "onSubmit" which contains "onAuthSubmit" inside of it, which then triggers too, which is connected inside the routes to a function, which triggers, that then sends a console log.
+
 export default App
