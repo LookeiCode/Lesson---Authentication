@@ -73,7 +73,7 @@ const login = async (username, password) => {
     await axios.post('http://localhost:8080/auth/login', 
     {
       username,
-      password
+      password,
     });
   } catch (e) {
     console.log('There was an error logging in');
@@ -88,7 +88,7 @@ const register = async (username, password) => {
     await axios.post('http://localhost:8080/auth/register', 
     {
       username,
-      password
+      password,
     });
   } catch (e) {
     console.log('There was an error registering');
