@@ -75,6 +75,8 @@ const login = async (username, password) => {
       username,
       password,
     });
+
+
   } catch (e) {
     console.log('There was an error logging in');
   };
@@ -85,13 +87,38 @@ const login = async (username, password) => {
 };
 const register = async (username, password) => {
   try {
-    await axios.post('http://localhost:8080/auth/register', 
-    {
-      username,
-      password,
-    });
-  } catch (e) {
-    console.log('There was an error registering');
+    const response = await axios.post('http://localhost:8080/auth/register', 
+      {
+        username,
+        password,
+      }
+    );
+
+    const token = response.data;
+    // console.log(token); <--- confirms token is being sent to front end (you should see it in the console if it's connected and working/being sent from the backend properly)
+
+      window.localStorage.setItem('token', token);
+      // window is global in every frontend file
+      // setItem just sets an item, obviously - the string 'token' is the key, and token (the variable) is the value
+      // If you go to inspect --> then "application" --> then "Local storage" on Chrome on your app page, you will see the key/value pair (your token - which means it was successfully stored in local storage!)
+  
+
+      const userResponse = await axios.get('http://localhost:8080/auth/me',
+      {
+        headers: {
+          authorization: token,
+        },
+      });
+      // This is how you make an authenticated API request
+      // We made a "auth/me" route in server.js
+      // We made an axios call to it here
+      const user = userResponse.data;
+
+      // console.log(user);
+      // Shows all the user details in the console for the frontend/client - (to confirm it works)
+
+    } catch (e) {
+    console.log(e);
   };
 
   // console.log('Register button clicked');
