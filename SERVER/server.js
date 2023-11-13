@@ -20,14 +20,52 @@ app.get('/', (req, res) => {
     res.send('hello world');
 });
 
-
+// LOGIN FLOW
+// 1. Click login --> makes an axios call to the server with the UN & PW
+// 2. Checks if user exists
+// 3. If not, throw error ("user doesn't exist")
+// 4. Find a user/take a user and compare their passwords (using a bcrypt function)
+// 5. If password is correct, send them a token
+// 6. If password is wrong, throw an error ("Incorrect password")
 
 // Actual routes (from our (vite) client/app.jsx)
 app.post('/auth/login', async (req, res, next) => {
     //destructuring
-    const {username, password } = req.body;
+    const { username, password } = req.body;
 
     try {
+
+        // Find a user
+        // This is how you find a row on a table - accounts is the table, username is the row - so we are searching inside a table called accounts WHERE the row is username
+        const user = await prisma.accounts.findUnique({
+            where: {
+                username,
+            },
+        });
+
+        // If login button works, this should show the user logging in's details in the terminal which confirms the user exists (in the db)
+        // console.log(user);
+
+        // If user doesn't exist, throw error
+        if (!user) {
+            return res.status(409).send({ message: 'User not found' });
+        }
+
+        // Check passwords
+        // bcrypt.compareSync takes 2 args and compares the password the user entered (password) to the password assigned to that user in the DB (user.password)
+        // You wouldn't type in "hashedPassword" because the user.password is the PW that's already hashed and stored in the db
+        const isCorrectPassword = bcrypt.compareSync(password, user.password)
+
+        // If password is correct it will log "true" in the terminal, if it isn't it's "false"
+        // console.log(isCorrectPassword);
+
+        // If password is correct, turns the user into a token and sends it to the client/frontend (successfully logged in)
+        if (isCorrectPassword) {
+            const token = jwt.sign(user, process.env.JWT_SECRET_KEY);
+            res.send(token);
+        } else {
+            res.status(401).send({ message: 'Incorrect password' })
+        };
 
     } catch (e) {
         next(e);
@@ -62,7 +100,7 @@ app.post('/auth/login', async (req, res, next) => {
 app.post('/auth/register', async (req, res, next) => {
     // console.log(req.body);
     //destructuring
-    const {username, password } = req.body;
+    const { username, password } = req.body;
     // 1
     try {
         const user = await prisma.accounts.findUnique({
@@ -74,12 +112,12 @@ app.post('/auth/register', async (req, res, next) => {
         // console.log(user);  
         // ^ Shows if user is null or not after clicking register button (demo purposes)
 
-    // 2
+        // 2
         if (user) {
-            return res.status(409).send({message: "User already exists"});
+            return res.status(409).send({ message: "User already exists" });
         }
 
-    // 3
+        // 3
 
         // bcrypt takes 2 args
         // 1. the PW that you want to hash
@@ -163,33 +201,33 @@ app.post('/auth/register', async (req, res, next) => {
 app.get('/auth/me', async (req, res, next) => {
 
     const token = req.headers.authorization;
-// Gets our auth token from the backend to send to the frontend
+    // Gets our auth token from the backend to send to the frontend
 
     // console.log(token);
-// Confirms that the token/route are working - should log the token in the terminal
+    // Confirms that the token/route are working - should log the token in the terminal
 
     // console.log(req.headers);
-// Shows what headers looks like in our terminal when we click register
-// Inside it you will see "authorization" containing our token - we made this on the frontend/client inside the "userResponse" axios call
+    // Shows what headers looks like in our terminal when we click register
+    // Inside it you will see "authorization" containing our token - we made this on the frontend/client inside the "userResponse" axios call
 
-// Now we want to transform this token to get the users data
-const user = jwt.verify(token, process.env.JWT_SECRET_KEY)
-// jwt.verify takes in 2 args
-// 1. The token
-// 2. The same secret key you used before from the jwt.sign (L99)
+    // Now we want to transform this token to get the users data
+    const user = jwt.verify(token, process.env.JWT_SECRET_KEY);
+    // jwt.verify takes in 2 args
+    // 1. The token
+    // 2. The same secret key you used before from the jwt.sign (L99)
 
-// You're kind of doing encryption here because you're encrypting "newUser" with the help of a secret key (L99)
-// In here we are decrypting it (L176) - decrypting it from the tokeN back to the user
+    // You're kind of doing encryption here because you're encrypting "newUser" with the help of a secret key (L99)
+    // In here we are decrypting it (L176) - decrypting it from the tokeN back to the user
 
-// Hashing is one way (like bcrypt) it just keeps moving forward and can't move back
-// Encrypting is two ways - when you encrypt you can decrypt it back
+    // Hashing is one way (like bcrypt) it just keeps moving forward and can't move back
+    // Encrypting is two ways - when you encrypt you can decrypt it back
 
-// console.log(user);
-// If all works it should show the user that you created/registered
+    // console.log(user);
+    // If all works it should show the user that you created/registered
 
-res.send(user);
+    res.send(user);
 
-})
+});
 
 
 
@@ -208,3 +246,29 @@ app.listen(PORT, () => {
 
 // Whenever something console logs in the terminal that means it's on your backend/server
 // Whenever something console logs in the console on the browser that means it's on your frontend/client
+
+// -------------------------------------------------------------------------------------------------------
+// WHOLE REGISTER/LOGIN FLOW
+//--------------------------
+// REGISTER
+// 1. Check if user exists
+// 2. Hash their password
+// 3. Create the user
+// 4. Using that user, get/create an access token - (newly created user)
+// 5.
+// 6.
+// 7.
+
+// LOGIN
+// 1. Check if user exists
+// 2. Check if password is correct
+// 3. If password is correct, take their user, and get the access token (existing user)
+// 4.
+// 5.
+// 6.
+// 7.
+
+// The token is a unique identifier for the user, and will always translate to the user
+// If you log out and log back in it will give you a new access token - which that new one now uniquely identifies the user, etc
+
+// -------------------------------------------------------------------------------------------------------
